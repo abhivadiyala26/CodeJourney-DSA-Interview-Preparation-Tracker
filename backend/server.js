@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import problemRoutes from './routes/problemRoutes.js';
@@ -44,10 +46,25 @@ app.use('/api/problems', problemRoutes);
 app.use('/api/cheatsheets', cheatSheetRoutes);
 app.use('/api/mocks', mockInterviewRoutes);
 
-// Base health route
-app.get('/', (req, res) => {
-  res.json({ message: 'CodeJourney API is running smoothly.' });
-});
+// Base health route / Static file serving
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === 'production') {
+  const frontendBuildPath = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(frontendBuildPath));
+  
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.json({ message: 'CodeJourney API is running smoothly.' });
+  });
+}
 
 // Centralized 404 handler
 app.use((req, res, next) => {
