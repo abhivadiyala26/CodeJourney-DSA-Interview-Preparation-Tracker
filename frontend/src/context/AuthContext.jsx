@@ -60,7 +60,10 @@ export const AuthProvider = ({ children }) => {
       showToast('Registration successful! Welcome to CodeJourney.', 'success');
       return data;
     } catch (error) {
-      const msg = error.response?.data?.message || 'Registration failed';
+      let msg = error.response?.data?.message || 'Registration failed';
+      if (error.message === 'Network Error') {
+        msg = 'Network Error: Cannot connect to backend. Please check VITE_API_URL environment variable on Vercel.';
+      }
       showToast(msg, 'error');
       throw error;
     } finally {
@@ -86,7 +89,10 @@ export const AuthProvider = ({ children }) => {
       showToast('Logged in successfully!', 'success');
       return data;
     } catch (error) {
-      const msg = error.response?.data?.message || 'Invalid email or password';
+      let msg = error.response?.data?.message || 'Invalid email or password';
+      if (error.message === 'Network Error') {
+        msg = 'Network Error: Cannot connect to backend. Please check VITE_API_URL environment variable on Vercel.';
+      }
       showToast(msg, 'error');
       throw error;
     } finally {
