@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../context/ToastContext.jsx';
 import api from '../utils/api.js';
-import { VALID_TOPICS } from '../../../backend/models/Problem.js';
+import { VALID_TOPICS } from '../utils/constants.js';
 import { 
   BookOpen, Plus, Save, Trash2, Edit2, FileText, Eye, EyeOff, 
   Loader2, ArrowLeft, ChevronRight, Hash, Compass 

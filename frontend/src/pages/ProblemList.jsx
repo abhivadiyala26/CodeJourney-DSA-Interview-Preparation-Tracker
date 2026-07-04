@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../context/ToastContext.jsx';
 import api from '../utils/api.js';
-import { VALID_TOPICS, VALID_COMPANIES } from '../../../backend/models/Problem.js';
+import { VALID_TOPICS, VALID_COMPANIES } from '../utils/constants.js';
 import { 
   Search, Filter, ArrowUpDown, Plus, Download, Edit2, Trash2, ExternalLink, 
   RotateCcw, SlidersHorizontal, ChevronLeft, ChevronRight, BookOpen, AlertCircle

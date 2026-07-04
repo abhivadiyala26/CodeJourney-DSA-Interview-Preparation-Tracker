@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useToast } from '../context/ToastContext.jsx';
 import api from '../utils/api.js';
-import { VALID_TOPICS, VALID_COMPANIES } from '../../../backend/models/Problem.js';
+import { VALID_TOPICS, VALID_COMPANIES } from '../utils/constants.js';
 import { 
   Save, ArrowLeft, Loader2, Sparkles, Plus, Check, 
   Play, Pause, Clock, Bot, RotateCcw, AlertTriangle, ArrowRight 
