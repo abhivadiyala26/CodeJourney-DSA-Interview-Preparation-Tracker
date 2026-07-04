@@ -1,8 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
@@ -50,13 +48,17 @@ app.use(globalLimiter);
 // Prevent MongoDB query injection attacks
 app.use(mongoSanitize());
 
-const allowedOrigin = process.env.FRONTEND_URL || process.env.CLIENT_URL;
+// Configure CORS Origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+].filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigin 
-      ? [allowedOrigin, 'http://localhost:5173', 'http://127.0.0.1:5173']
-      : ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: allowedOrigins,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -86,25 +88,13 @@ app.use('/api/problems', problemRoutes);
 app.use('/api/cheatsheets', cheatSheetRoutes);
 app.use('/api/mocks', mockInterviewRoutes);
 
-// Base health route / Static file serving
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-if (process.env.NODE_ENV === 'production') {
-  const frontendBuildPath = path.join(__dirname, '../frontend/dist');
-  app.use(express.static(frontendBuildPath));
-  
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) {
-      return next();
-    }
-    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+// Base health route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'CodeJourney Backend API is running successfully'
   });
-} else {
-  app.get('/', (req, res) => {
-    res.json({ message: 'CodeJourney API is running smoothly.' });
-  });
-}
+});
 
 // Centralized 404 handler
 app.use((req, res, next) => {
