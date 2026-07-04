@@ -3,6 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import problemRoutes from './routes/problemRoutes.js';
@@ -16,6 +19,36 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+// Rate Limiters Configuration
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: { message: 'Too many requests from this IP. Please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Limit each IP to 20 requests per windowMs
+  message: { message: 'Too many requests on this secure endpoint. Please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Configure Helmet Secure HTTP Headers (Disable CSP in dev to support Vite HMR)
+if (process.env.NODE_ENV === 'production') {
+  app.use(helmet());
+} else {
+  app.use(helmet({ contentSecurityPolicy: false }));
+}
+
+// Mount Global Rate Limiter
+app.use(globalLimiter);
+
+// Prevent MongoDB query injection attacks
+app.use(mongoSanitize());
 
 app.use(
   cors({
@@ -39,6 +72,11 @@ if (process.env.NODE_ENV === 'development') {
     next();
   });
 }
+
+// Rate limit specific sensitive endpoints
+app.use('/api/auth/login', strictLimiter);
+app.use('/api/auth/register', strictLimiter);
+app.use('/api/problems/:id/ai-review', strictLimiter);
 
 // API Routes mounting
 app.use('/api/auth', authRoutes);

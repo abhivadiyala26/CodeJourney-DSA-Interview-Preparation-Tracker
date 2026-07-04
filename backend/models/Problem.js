@@ -101,10 +101,12 @@ const problemSchema = new mongoose.Schema(
   }
 );
 
-// Indexes for fast searching and filtering
+// Indexes for fast searching, filtering, and stats aggregation
 problemSchema.index({ userId: 1, createdAt: -1 });
 problemSchema.index({ userId: 1, status: 1 });
 problemSchema.index({ userId: 1, difficulty: 1 });
+problemSchema.index({ userId: 1, solvedDate: -1 });
+problemSchema.index({ userId: 1, topic: 1 });
 
 const Problem = mongoose.model('Problem', problemSchema);
 export default Problem;
